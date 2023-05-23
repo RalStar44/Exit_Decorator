@@ -27,7 +27,9 @@ class ExitHandler:
     def handle_exit(self):
         if self.program_exit_handler:
             self.program_exit_handler()
-        elif self.function_exit_handler and threading.current_thread() == threading.main_thread():
+        elif (self.function_exit_handler
+              and threading.current_thread() == threading.main_thread()
+              ):
             self.function_exit_handler()
         elif self.thread_exit_handler:
             self.thread_exit_handler()
