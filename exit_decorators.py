@@ -1,10 +1,13 @@
 import atexit
 import threading
+import logging
 
 
 class ExitHandler:
-    def __init__(self, program_exit_handler=None, function_exit_handler=None,
-                 thread_exit_handler=None):
+    def __init__(self, program_exit_handler=None,
+                 function_exit_handler=None,
+                 thread_exit_handler=None,
+                 logger: logging = None):
         self.program_exit_handler = program_exit_handler
         self.function_exit_handler = function_exit_handler
         self.thread_exit_handler = thread_exit_handler
@@ -13,6 +16,7 @@ class ExitHandler:
             "function": "Function",
             "thread": "Thread"
         }
+        self.logger = logger or logging.getLogger()
 
     def handle_exit(self):
         if self.program_exit_handler:
@@ -23,8 +27,7 @@ class ExitHandler:
             self.thread_exit_handler()
         else:
             exiting_entity = self.get_exiting_entity()
-            # Default behavior: print the exiting entity
-            print(f"{self.entity_names[exiting_entity]} is exiting")
+            self.logger.info(f"{self.entity_names[exiting_entity]} is exiting")
 
     def get_exiting_entity(self):
         if threading.current_thread() == threading.main_thread():
@@ -58,19 +61,16 @@ def thread_exit_decorator(thread_exit_handler=None):
 
 
 # Usage example
-def my_program_exit_handler():
-    print("Custom program exit handler")
-
-
-def my_function_exit_handler():
-    print("Custom function exit handler")
-
-
-def my_thread_exit_handler():
-    print("Custom thread exit handler")
-
-
 if __name__ == "__main__":
+    def my_program_exit_handler():
+        print("Custom program exit handler")
+
+    def my_function_exit_handler():
+        print("Custom function exit handler")
+
+    def my_thread_exit_handler():
+        print("Custom thread exit handler")
+
     @program_exit_decorator(program_exit_handler=my_program_exit_handler)
     def main():
         print("Main function")
